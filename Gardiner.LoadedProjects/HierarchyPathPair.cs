@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace DavidGardiner.Gardiner_LoadedProjects
 {
+    // http://social.msdn.microsoft.com/Forums/en-US/vsx/thread/60fdd7b4-2247-4c18-b1da-301390edabf3
     public sealed class HierarchyPathPair
     {
         public HierarchyPathPair( IVsUIHierarchy hier, string hierPath )
