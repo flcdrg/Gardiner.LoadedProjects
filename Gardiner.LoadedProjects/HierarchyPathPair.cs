@@ -8,11 +8,21 @@ namespace DavidGardiner.Gardiner_LoadedProjects
     {
         public HierarchyPathPair( IVsUIHierarchy hier, string hierPath )
         {
-            Hierarchy = hier;
-            HierarchyPath = hierPath;
+            _hierarchy = hier;
+            _hierarchyPath = hierPath;
         }
 
-        public readonly string HierarchyPath;
-        public readonly IVsUIHierarchy Hierarchy;
+        private readonly string _hierarchyPath;
+        private readonly IVsUIHierarchy _hierarchy;
+
+        public string HierarchyPath
+        {
+            get { return _hierarchyPath; }
+        }
+
+        public IVsUIHierarchy Hierarchy
+        {
+            get { return _hierarchy; }
+        }
     }
 }

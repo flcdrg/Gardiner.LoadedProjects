@@ -77,6 +77,11 @@ namespace DavidGardiner.Gardiner_LoadedProjects
     {
         public static void ForEach<T>( this IEnumerable<T> collection, Action<T> func )
         {
+            if ( collection == null )
+                throw new ArgumentNullException( "collection" );
+            if ( func == null )
+                throw new ArgumentNullException( "func" );
+
             foreach ( T t in collection )
             {
                 func( t );

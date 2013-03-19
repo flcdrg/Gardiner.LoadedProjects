@@ -6,7 +6,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
     [Serializable]
     public class Settings
     {
-        public IList<Profile> Profiles { get; set; }
+        public IList<Profile> Profiles { get; private set; }
 
         public Settings()
         {

@@ -11,7 +11,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             UnloadedProjects = new List<string>();
         }
 
-        public List<string> UnloadedProjects { get; set; }
+        public List<string> UnloadedProjects { get; private set; }
 
         public string Name { get; set; }
 

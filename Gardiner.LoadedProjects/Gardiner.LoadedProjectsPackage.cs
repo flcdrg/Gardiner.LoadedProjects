@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -33,7 +34,9 @@ namespace DavidGardiner.Gardiner_LoadedProjects
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource( "Menus.ctmenu", 1 )]
     [Guid( GuidList.guidGardiner_LoadedProjectsPkgString )]
+// ReSharper disable InconsistentNaming
     public sealed class Gardiner_LoadedProjectsPackage : Package
+// ReSharper restore InconsistentNaming
     {
         private const string SettingsKey = "Gardiner.LoadedProjects";
         private const string OutputWindowId = "C376C4E8-8E26-4D6F-886C-551A088EF57D";
@@ -104,10 +107,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
                     {
                         var profile = frm.SelectedProfile;
 
-                        IVsUIHierarchyWindow slnExpHierWin = VsShellUtilities.GetUIHierarchyWindow( this,
-                                                                                                    VSConstants
-                                                                                                        .StandardToolWindows
-                                                                                                        .SolutionExplorer );
+                        IVsUIHierarchyWindow slnExpHierWin = VsShellUtilities.GetUIHierarchyWindow( this, VSConstants.StandardToolWindows.SolutionExplorer );
 
                         var solutionService = (IVsSolution) GetService( typeof (SVsSolution) );
 
@@ -127,7 +127,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
                                         solutionService.CloseSolutionElement(
                                             (uint) __VSSLNCLOSEOPTIONS.SLNCLOSEOPT_UnloadProject, item.Hierarchy, 0 ) );
 
-                                    OutputCommandString( string.Format( "Unloaded {0}", item.HierarchyPath ) );
+                                    OutputCommandString( string.Format(CultureInfo.CurrentCulture, "Unloaded {0}", item.HierarchyPath ) );
                                 }
                             }
                         }
@@ -138,12 +138,11 @@ namespace DavidGardiner.Gardiner_LoadedProjects
                         {
                             if ( profile.UnloadedProjects.All( x => x != pair.HierarchyPath ) )
                             {
-                                slnExpHierWin.ExpandItem( pair.Hierarchy, (uint) VSConstants.VSITEMID.Root,
-                                                          EXPANDFLAGS.EXPF_SelectItem );
+                                ErrorHandler.ThrowOnFailure( slnExpHierWin.ExpandItem( pair.Hierarchy, (uint) VSConstants.VSITEMID.Root, EXPANDFLAGS.EXPF_SelectItem ) );
 
                                 dte.ExecuteCommand( "Project.ReloadProject" );
 
-                                OutputCommandString( string.Format( "Reloaded {0}", pair.HierarchyPath ) );
+                                OutputCommandString( string.Format(CultureInfo.CurrentCulture, "Reloaded {0}", pair.HierarchyPath ) );
                             }
                         }
                     }
@@ -171,17 +170,10 @@ namespace DavidGardiner.Gardiner_LoadedProjects
 
 
             object pVar;
-            hier.GetProperty( (uint) VSConstants.VSITEMID.Root, (int) __VSHPROPID.VSHPROPID_Name, out pVar );
+            ErrorHandler.ThrowOnFailure(hier.GetProperty( (uint) VSConstants.VSITEMID.Root, (int) __VSHPROPID.VSHPROPID_Name, out pVar ));
             Debug.WriteLine( pVar );
 
-            if ( proj != null )
-            {
-                ErrorHandler.ThrowOnFailure( proj.GetMkDocument( (uint) VSConstants.VSITEMID.Root, out name ) );
-            }
-            else
-            {
-                ErrorHandler.ThrowOnFailure( hier.GetCanonicalName( (uint) VSConstants.VSITEMID.Root, out name ) );
-            }
+            ErrorHandler.ThrowOnFailure( proj != null ? proj.GetMkDocument( (uint) VSConstants.VSITEMID.Root, out name ) : hier.GetCanonicalName( (uint) VSConstants.VSITEMID.Root, out name ) );
             return name;
         }
 
@@ -207,21 +199,20 @@ namespace DavidGardiner.Gardiner_LoadedProjects
 
         private static void PrepareOutput()
         {
-            var outWindow = GetGlobalService( typeof (SVsOutputWindow) ) as IVsOutputWindow;
+            var outWindow = (IVsOutputWindow) GetGlobalService( typeof (SVsOutputWindow) );
 
             var customGuid = new Guid( OutputWindowId );
             const string customTitle = "Loaded Projects Output";
-            outWindow.CreatePane( ref customGuid, customTitle, 1, 1 );
+            ErrorHandler.ThrowOnFailure(outWindow.CreatePane( ref customGuid, customTitle, 1, 1 ));
 
-            outWindow.GetPane( ref customGuid, out _customPane );
+            ErrorHandler.ThrowOnFailure(outWindow.GetPane( ref customGuid, out _customPane ));
 
-            _customPane.Activate(); // Brings this pane into view
+            ErrorHandler.ThrowOnFailure(_customPane.Activate()); // Brings this pane into view
         }
 
         private static void OutputCommandString( string text )
         {
-            _customPane.OutputString( text );
-            _customPane.OutputString( "\n" );
+            ErrorHandler.ThrowOnFailure(_customPane.OutputString( text + "\n" ));
         }
 
         public static Project ToDteProject( IVsHierarchy hierarchy )
@@ -237,6 +228,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
         }
 
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes" )]
         protected override void OnLoadOptions( string key, Stream stream )
         {
             if ( key == SettingsKey )
@@ -257,6 +249,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes" )]
         protected override void OnSaveOptions( string key, Stream stream )
         {
             if ( key == SettingsKey )
