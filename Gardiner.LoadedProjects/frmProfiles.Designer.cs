@@ -108,6 +108,7 @@
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.lstProfiles);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "frmProfiles";
             this.Text = "Project Profiles";
             this.Load += new System.EventHandler(this.frmProfiles_Load);

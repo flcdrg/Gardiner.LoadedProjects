@@ -39,10 +39,18 @@ namespace DavidGardiner.Gardiner_LoadedProjects
 
             var profile = new Profile();
             profile.UnloadedProjects.AddRange( Unloaded );
-            profile.Name = DateTime.Now.ToString();
-            Settings.Profiles.Add( profile );
-            DialogResult = DialogResult.OK;
-            Close();
+
+            using ( var frm = new frmProfileName {ProfileName = DateTime.Now.ToString()} )
+            {
+                if ( frm.ShowDialog( this ) == DialogResult.OK )
+                {
+                    profile.Name = frm.ProfileName;
+
+                    Settings.Profiles.Add( profile );
+                    DialogResult = DialogResult.OK;
+                    Close();
+                }
+            }
         }
 
         private void btnDelete_Click( object sender, EventArgs e )

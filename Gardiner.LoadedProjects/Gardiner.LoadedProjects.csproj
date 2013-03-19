@@ -118,6 +118,12 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="frmProfileName.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmProfileName.Designer.cs">
+      <DependentUpon>frmProfileName.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmProfiles.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -140,6 +146,9 @@
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="frmProfileName.resx">
+      <DependentUpon>frmProfileName.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmProfiles.resx">
       <DependentUpon>frmProfiles.cs</DependentUpon>
     </EmbeddedResource>
