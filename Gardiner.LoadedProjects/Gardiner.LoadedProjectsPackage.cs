@@ -171,10 +171,21 @@ namespace DavidGardiner.Gardiner_LoadedProjects
 
             object pVar;
             ErrorHandler.ThrowOnFailure(hier.GetProperty( (uint) VSConstants.VSITEMID.Root, (int) __VSHPROPID.VSHPROPID_Name, out pVar ));
-            Debug.WriteLine( pVar );
 
-            ErrorHandler.ThrowOnFailure( proj != null ? proj.GetMkDocument( (uint) VSConstants.VSITEMID.Root, out name ) : hier.GetCanonicalName( (uint) VSConstants.VSITEMID.Root, out name ) );
-            return name;
+            int hr;
+            if (proj != null)
+                hr = proj.GetMkDocument((uint) VSConstants.VSITEMID.Root, out name);
+            else
+                hr = hier.GetCanonicalName((uint) VSConstants.VSITEMID.Root, out name);
+
+            if (hr == 0)
+                return name;
+            else
+            {
+                Debug.WriteLine("Failed to get full path for {0}", pVar);
+
+                return string.Empty;
+            }
         }
 
 
@@ -185,16 +196,35 @@ namespace DavidGardiner.Gardiner_LoadedProjects
 
             var enumerator = new ProjectEnumerator( (IVsSolution) GetService( typeof (SVsSolution) ) );
             var loadedProjects =
-                enumerator.LoadedProjects.Select(
-                    h => new HierarchyPathPair( (IVsUIHierarchy) h, GetFullPathToItem( h ) ) );
-            loadedProjects.ForEach( hpp => _loaded.Add( hpp ) );
+                enumerator.LoadedProjects
+                .Select(x => new { hierarchy = (IVsUIHierarchy) x, path = GetFullPathToItem(x) })
+                .Where(x => x.path != null)
+                .Select(
+                    h => new HierarchyPathPair(  h.hierarchy, h.path ) );
 
-            var unloadedProjects =
-                new List<HierarchyPathPair>(
-                    enumerator.UnloadedProjects.Select(
-                        h => new HierarchyPathPair( (IVsUIHierarchy) h, GetFullPathToItem( h ) ) ) );
+            try
+            {
+                loadedProjects.ForEach( hpp =>
+                {
+                    if (_loaded != null)
+                        _loaded.Add(hpp);
+                });
+
+                var unloadedProjects =
+                    new List<HierarchyPathPair>(
+                        enumerator.UnloadedProjects
+                                  .Select(x => new {hierarchy = (IVsUIHierarchy) x, path = GetFullPathToItem(x)})
+                                  .Where(x => x.path != null)
+                                  .Select(
+                                      h => new HierarchyPathPair(h.hierarchy, h.path)));
+
 
             unloadedProjects.ForEach( hpp => _unloaded.Add( hpp ) );
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
         }
 
         private static void PrepareOutput()
