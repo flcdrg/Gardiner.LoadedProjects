@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Gardiner.LoadedProjects_IntegrationTests.Properties")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("MatrixGroup")]
+[assembly: AssemblyCompany("David Gardiner")]
 [assembly: AssemblyProduct("Gardiner.LoadedProjects_IntegrationTests.Properties")]
-[assembly: AssemblyCopyright("Copyright © MatrixGroup 2013")]
+[assembly: AssemblyCopyright("Copyright © David Gardiner 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
