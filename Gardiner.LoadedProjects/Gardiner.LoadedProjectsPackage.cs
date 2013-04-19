@@ -5,11 +5,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using System.Windows.Forms;
+using System.Xml.Serialization;
+
 using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio;
@@ -37,7 +39,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(GuidList.guidGardiner_LoadedProjectsPkgString)]
     // ReSharper disable InconsistentNaming
-    public sealed class Gardiner_LoadedProjectsPackage : Package
+    public sealed class Gardiner_LoadedProjectsPackage : Package, IVsSolutionLoadEvents, IVsSolutionEvents
         // ReSharper restore InconsistentNaming
     {
         private const string SettingsKey = "Gardiner.LoadedProjects";
@@ -46,6 +48,8 @@ namespace DavidGardiner.Gardiner_LoadedProjects
         private IList<HierarchyPathPair> _loaded;
         private Settings _settings;
         private IList<HierarchyPathPair> _unloaded;
+        private DTE _dte;
+        private uint _solutionCookie;
 
         /// <summary>
         ///     Default constructor of the package.
@@ -73,6 +77,12 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             Debug.WriteLine("Entering Initialize() of: {0}", ToString());
             base.Initialize();
 
+            _dte = GetService(typeof(SDTE)) as DTE;
+
+            // listen for solution events
+            var solution = (IVsSolution)GetService(typeof(SVsSolution));
+            ErrorHandler.ThrowOnFailure(solution.AdviseSolutionEvents(this, out _solutionCookie));
+   
             // Add our command handlers for menu (commands must exist in the .vsct file)
             var mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (null != mcs)
@@ -84,9 +94,67 @@ namespace DavidGardiner.Gardiner_LoadedProjects
                 mcs.AddCommand(menuItem);
             }
 
-            _settings = new Settings();
-
             PrepareOutput();
+        }
+
+        private void SolutionAfterClosing()
+        {
+            string solutionPath = _dte.Solution.FullName + ".LoadedProjects";
+
+            try
+            {
+                if (null != _settings)
+                {
+                    // TODO dirty check before saving
+                    using (var fs = new FileStream(solutionPath, FileMode.Create, FileAccess.ReadWrite))
+                    {
+                        var serializer = new XmlSerializer(typeof(Settings));
+                        serializer.Serialize(fs, _settings);
+                    }
+                    OutputCommandString(string.Format("Saved settings to {0}", solutionPath));
+                }
+            }
+            catch (Exception ex)
+            {
+                OutputCommandString(string.Format("Exception saving options. {0}", ex));
+            }
+            finally
+            {
+                _settings = null;
+            }
+
+        }
+
+        private void SolutionOpened()
+        {
+            if (_settings == null)
+            {
+                string solutionPath = _dte.Solution.FullName + ".LoadedProjects";
+
+                if (File.Exists(solutionPath))
+                {
+                    try
+                    {
+                        using (var fs = new FileStream(solutionPath, FileMode.Open))
+                        {
+                            var serializer = new XmlSerializer(typeof(Settings));
+                            _settings = (Settings)serializer.Deserialize(fs);
+                        }
+
+                        OutputCommandString("Loaded options");
+                    }
+                    catch (Exception ex)
+                    {
+                        OutputCommandString(string.Format("Exception loading options. {0}", ex));
+                        _settings = new Settings();
+                    }
+
+
+                }
+                else
+                    _settings = new Settings();
+            }
+
         }
 
         /// <summary>
@@ -96,11 +164,22 @@ namespace DavidGardiner.Gardiner_LoadedProjects
         /// </summary>
         private void MenuItemCallback(object sender, EventArgs e)
         {
+            SolutionOpened();
+
             GetProjects();
 
             using (var frm = new frmProfiles())
             {
-                frm.Unloaded = _unloaded.Select(x => x.HierarchyPath).ToList();
+
+                string solutionFolder = Path.GetDirectoryName(_dte.Solution.FullName);
+
+                if (string.IsNullOrEmpty(solutionFolder))
+                {
+                    OutputCommandString("Could not load path for solution");
+                    return;
+                }
+
+                frm.Unloaded = _unloaded.Select(x => GetRelativePath(solutionFolder, x.HierarchyPath)).ToList();
                 frm.Settings = _settings;
 
                 if (frm.ShowDialog() != DialogResult.Cancel)
@@ -115,7 +194,9 @@ namespace DavidGardiner.Gardiner_LoadedProjects
 
                         foreach (var project in profile.UnloadedProjects)
                         {
-                            var item = _loaded.FirstOrDefault(x => x.HierarchyPath == project);
+                            // convert to absolute path
+                            string absoluteProjectPath = Path.GetFullPath(Path.Combine(solutionFolder, project));
+                            var item = _loaded.FirstOrDefault(x => x.HierarchyPath.Equals(absoluteProjectPath, StringComparison.CurrentCultureIgnoreCase));
 
                             if (item != null)
                             {
@@ -244,6 +325,9 @@ namespace DavidGardiner.Gardiner_LoadedProjects
 
         private static void OutputCommandString(string text)
         {
+            if (_customPane == null)
+                PrepareOutput();
+
             ErrorHandler.ThrowOnFailure(_customPane.OutputString(text + "\n"));
         }
 
@@ -259,69 +343,128 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             throw new ArgumentException("Hierarchy is not a project.");
         }
 
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        protected override void OnLoadOptions(string key, Stream stream)
+        public int OnBeforeOpenSolution(string pszSolutionFilename)
         {
-            if (key == SettingsKey)
-            {
-                try
-                {
-                    var formatter = new DataContractSerializer(typeof(Settings));
-                    _settings = (Settings) formatter.ReadObject(stream);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Exception loading options. {0}", ex);
-                    _settings = new Settings();
-                }
-            }
-            else
-            {
-                base.OnLoadOptions(key, stream);
-            }
+            return VSConstants.S_OK;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        protected override void OnSaveOptions(string key, Stream stream)
+        public int OnBeforeBackgroundSolutionLoadBegins()
         {
-            if (key == SettingsKey)
-            {
-                try
-                {
-                    if (null != _settings)
-                    {
-                        var formatter = new DataContractSerializer(typeof(Settings));
-                        formatter.WriteObject(stream, _settings);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Exception saving options. {0}", ex);
-                }
-            }
-            else
-            {
-                base.OnSaveOptions(key, stream);
-            }
+            return VSConstants.S_OK;
         }
+
+        public int OnQueryBackgroundLoadProjectBatch(out bool pfShouldDelayLoadToNextIdle)
+        {
+            pfShouldDelayLoadToNextIdle = false;
+            return VSConstants.S_OK;
+        }
+
+        public int OnBeforeLoadProjectBatch(bool fIsBackgroundIdleBatch)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnAfterLoadProjectBatch(bool fIsBackgroundIdleBatch)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnAfterBackgroundSolutionLoadComplete()
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnQueryCloseProject(IVsHierarchy pHierarchy, int fRemoving, ref int pfCancel)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnAfterLoadProject(IVsHierarchy pStubHierarchy, IVsHierarchy pRealHierarchy)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnQueryUnloadProject(IVsHierarchy pRealHierarchy, ref int pfCancel)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnQueryCloseSolution(object pUnkReserved, ref int pfCancel)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnBeforeCloseSolution(object pUnkReserved)
+        {
+            // Need to do this before solution closes, so we know the path of the solution
+            SolutionAfterClosing();
+            return VSConstants.S_OK;
+        }
+
+        public int OnAfterCloseSolution(object pUnkReserved)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public static string GetRelativePath(string fromPath, string toPath)
+        {
+            int fromAttr = GetPathAttribute(fromPath);
+            int toAttr = GetPathAttribute(toPath);
+
+            var path = new StringBuilder(260); // MAX_PATH
+            if (PathRelativePathTo(
+                path,
+                fromPath,
+                fromAttr,
+                toPath,
+                toAttr) == 0)
+            {
+                throw new ArgumentException("Paths must have a common prefix");
+            }
+            return path.ToString();
+        }
+
+        private static int GetPathAttribute(string path)
+        {
+            var di = new DirectoryInfo(path);
+            if (di.Exists)
+            {
+                return FILE_ATTRIBUTE_DIRECTORY;
+            }
+
+            var fi = new FileInfo(path);
+            if (fi.Exists)
+            {
+                return FILE_ATTRIBUTE_NORMAL;
+            }
+
+            throw new FileNotFoundException();
+        }
+
+        private const int FILE_ATTRIBUTE_DIRECTORY = 0x10;
+        private const int FILE_ATTRIBUTE_NORMAL = 0x80;
+
+        [DllImport("shlwapi.dll", SetLastError = true)]
+        private static extern int PathRelativePathTo(StringBuilder pszPath, string pszFrom, int dwAttrFrom, string pszTo, int dwAttrTo);
     }
-
-    internal sealed class AllowAllAssemblyVersionsDeserializationBinder : System.Runtime.Serialization.SerializationBinder
-    {
-        public override Type BindToType(string assemblyName, string typeName)
-        {
-            String currentAssembly = Assembly.GetExecutingAssembly().FullName;
-
-            // In this case we are always using the current assembly
-            assemblyName = currentAssembly;
-
-            // Get the type using the typeName and assemblyName
-            Type typeToDeserialize = Type.GetType(String.Format("{0}, {1}", typeName, assemblyName));
-
-            return typeToDeserialize;
-        }
-    }
-
-
 }

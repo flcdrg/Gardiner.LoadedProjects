@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace DavidGardiner.Gardiner_LoadedProjects
 {
     [Serializable]
+    [XmlRoot("Settings")]
     public class Settings
     {
-        public IList<Profile> Profiles { get; private set; }
+        public List<Profile> Profiles { get; private set; }
 
         public Settings()
         {

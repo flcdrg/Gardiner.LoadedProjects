@@ -122,6 +122,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AllowAllAssemblyVersionsDeserializationBinder.cs" />
     <Compile Include="frmProfileName.cs">
       <SubType>Form</SubType>
     </Compile>
