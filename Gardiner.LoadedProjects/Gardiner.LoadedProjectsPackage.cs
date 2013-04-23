@@ -10,14 +10,13 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-
 using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace DavidGardiner.Gardiner_LoadedProjects
+namespace Gardiner.LoadedProjects
 {
     /// <summary>
     ///     This is the class that implements the package exposed by this assembly.
@@ -44,9 +43,6 @@ namespace DavidGardiner.Gardiner_LoadedProjects
         private const int FILE_ATTRIBUTE_DIRECTORY = 0x10;
         private const int FILE_ATTRIBUTE_NORMAL = 0x80;
         private const string FileSuffix = ".LoadedProjects.User";
-
-        [DllImport( "shlwapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        private static extern int PathRelativePathTo( StringBuilder pszPath, string pszFrom, int dwAttrFrom, string pszTo, int dwAttrTo );
 
         private const string SettingsKey = "Gardiner.LoadedProjects";
         private const string OutputWindowId = "C376C4E8-8E26-4D6F-886C-551A088EF57D";
@@ -424,7 +420,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             int toAttr = GetPathAttribute(toPath);
 
             var path = new StringBuilder(260); // MAX_PATH
-            if (PathRelativePathTo(
+            if (NativeMethods.PathRelativePathTo(
                 path,
                 fromPath,
                 fromAttr,

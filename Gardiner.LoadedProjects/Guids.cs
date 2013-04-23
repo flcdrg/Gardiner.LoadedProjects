@@ -1,8 +1,9 @@
 ﻿// Guids.cs
 // MUST match guids.h
+
 using System;
 
-namespace DavidGardiner.Gardiner_LoadedProjects
+namespace Gardiner.LoadedProjects
 {
     static class GuidList
     {

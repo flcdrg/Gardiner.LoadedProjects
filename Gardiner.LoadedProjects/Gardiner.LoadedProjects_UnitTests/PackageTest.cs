@@ -13,10 +13,10 @@ using System;
 using System.Collections;
 using System.Text;
 using System.Reflection;
+using Gardiner.LoadedProjects;
 using Microsoft.VsSDK.UnitTestLibrary;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DavidGardiner.Gardiner_LoadedProjects;
 
 namespace Gardiner.LoadedProjects_UnitTests
 {

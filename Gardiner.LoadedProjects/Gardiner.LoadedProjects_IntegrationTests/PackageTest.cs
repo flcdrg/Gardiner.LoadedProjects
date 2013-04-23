@@ -2,6 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using Gardiner.LoadedProjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VSSDK.Tools.VsIdeTesting;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -49,7 +50,7 @@ namespace Gardiner.LoadedProjects_IntegrationTests
 
                 //Validate package load
                 IVsPackage package;
-                Guid packageGuid = new Guid( DavidGardiner.Gardiner_LoadedProjects.GuidList.guidGardiner_LoadedProjectsPkgString );
+                Guid packageGuid = new Guid( GuidList.guidGardiner_LoadedProjectsPkgString );
                 Assert.IsTrue( 0 == shellService.LoadPackage( ref packageGuid, out package ) );
                 Assert.IsNotNull( package, "Package failed to load" );
 

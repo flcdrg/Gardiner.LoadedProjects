@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace DavidGardiner.Gardiner_LoadedProjects
+namespace Gardiner.LoadedProjects
 {
     public partial class frmProfiles : Form
     {
@@ -27,9 +27,10 @@ namespace DavidGardiner.Gardiner_LoadedProjects
 
         private void frmProfiles_Load( object sender, EventArgs e )
         {
-            lstProfiles.Items.Clear();
             lstProfiles.BeginUpdate();
-            lstProfiles.Items.AddRange( Settings.Profiles.ToArray() );
+            lstProfiles.Items.Clear();
+            object[] profiles = Settings.Profiles.ToArray();
+            lstProfiles.Items.AddRange( profiles );
             lstProfiles.EndUpdate();
         }
 

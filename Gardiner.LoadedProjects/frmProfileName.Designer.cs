@@ -1,4 +1,6 @@
-﻿namespace DavidGardiner.Gardiner_LoadedProjects
+﻿using System;
+
+namespace Gardiner.LoadedProjects
 {
     partial class frmProfileName
     {

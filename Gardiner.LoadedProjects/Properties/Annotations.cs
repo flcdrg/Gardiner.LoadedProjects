@@ -15,9 +15,8 @@
  */
 
 using System;
-using System.ComponentModel;
 
-namespace DavidGardiner.Gardiner_LoadedProjects.Annotations
+namespace Gardiner.LoadedProjects.Properties
 {
   /// <summary>
   /// Indicates that marked element should be localized or not.

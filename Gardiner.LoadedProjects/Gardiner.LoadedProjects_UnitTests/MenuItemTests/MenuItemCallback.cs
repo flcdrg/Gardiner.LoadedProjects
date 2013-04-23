@@ -14,11 +14,11 @@ using System.Collections;
 using System.Text;
 using System.Reflection;
 using System.ComponentModel.Design;
+using Gardiner.LoadedProjects;
 using Microsoft.VsSDK.UnitTestLibrary;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VisualStudio.Shell;
-using DavidGardiner.Gardiner_LoadedProjects;
 
 namespace Gardiner.LoadedProjects_UnitTests.MenuItemTests
 {
@@ -43,7 +43,7 @@ namespace Gardiner.LoadedProjects_UnitTests.MenuItemTests
             Assert.AreEqual( 0, package.SetSite( serviceProvider ), "SetSite did not return S_OK" );
 
             //Verify that the menu command can be found
-            CommandID menuCommandID = new CommandID( DavidGardiner.Gardiner_LoadedProjects.GuidList.guidGardiner_LoadedProjectsCmdSet, (int) DavidGardiner.Gardiner_LoadedProjects.PkgCmdIDList.cmdidLoadedProjects );
+            CommandID menuCommandID = new CommandID( GuidList.guidGardiner_LoadedProjectsCmdSet, (int) PkgCmdIDList.cmdidLoadedProjects );
             System.Reflection.MethodInfo info = typeof( Package ).GetMethod( "GetService", BindingFlags.Instance | BindingFlags.NonPublic );
             Assert.IsNotNull( info );
             OleMenuCommandService mcs = info.Invoke( package, new object[] { ( typeof( IMenuCommandService ) ) } ) as OleMenuCommandService;

@@ -1,10 +1,8 @@
-﻿using System.Linq;
-using System.Collections.Generic;
-using System;
+﻿using System;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace DavidGardiner.Gardiner_LoadedProjects
+namespace Gardiner.LoadedProjects
 {
     internal sealed class AllowAllAssemblyVersionsDeserializationBinder : SerializationBinder
     {

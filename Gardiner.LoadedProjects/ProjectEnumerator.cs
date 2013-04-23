@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using DavidGardiner.Gardiner_LoadedProjects;
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace DavidGardiner.Gardiner_LoadedProjects
+namespace Gardiner.LoadedProjects
 {
     public class ProjectEnumerator
     {
-        private IVsSolution solution;
+        private readonly IVsSolution _solution;
 
         public ProjectEnumerator( IVsSolution solution )
         {
             if ( solution == null )
                 throw new ArgumentNullException( "solution" );
-            this.solution = solution;
+            this._solution = solution;
         }
 
         public IEnumerable<IVsHierarchy> LoadedProjects
@@ -68,7 +64,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             Guid ignored = Guid.Empty;
             IEnumHierarchies hierEnum;
 
-            ErrorHandler.ThrowOnFailure( this.solution.GetProjectEnum( (uint) enumFlags, ref ignored, out hierEnum ) );
+            ErrorHandler.ThrowOnFailure( this._solution.GetProjectEnum( (uint) enumFlags, ref ignored, out hierEnum ) );
             return hierEnum;
         }
     }

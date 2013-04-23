@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Globalization;
 using System.ComponentModel.Design;
+using Gardiner.LoadedProjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VsSDK.IntegrationTestLibrary;
 using Microsoft.VSSDK.Tools.VsIdeTesting;
+using NativeMethods = Microsoft.VsSDK.IntegrationTestLibrary.NativeMethods;
 
 namespace Gardiner.LoadedProjects_IntegrationTests
 {
@@ -42,7 +44,7 @@ namespace Gardiner.LoadedProjects_IntegrationTests
         {
             UIThreadInvoker.Invoke( (ThreadInvoker) delegate()
             {
-                CommandID menuItemCmd = new CommandID( DavidGardiner.Gardiner_LoadedProjects.GuidList.guidGardiner_LoadedProjectsCmdSet, (int) DavidGardiner.Gardiner_LoadedProjects.PkgCmdIDList.cmdidLoadedProjects );
+                CommandID menuItemCmd = new CommandID( GuidList.guidGardiner_LoadedProjectsCmdSet, (int) PkgCmdIDList.cmdidLoadedProjects );
 
                 // Create the DialogBoxListener Thread.
                 string expectedDialogBoxText = string.Format( CultureInfo.CurrentCulture, "{0}\n\nInside {1}.MenuItemCallback()", "Loaded Projects", "DavidGardiner.Gardiner_LoadedProjects.Gardiner_LoadedProjectsPackage" );

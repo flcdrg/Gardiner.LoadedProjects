@@ -3,9 +3,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
-using DavidGardiner.Gardiner_LoadedProjects.Annotations;
+using Gardiner.LoadedProjects.Properties;
 
-namespace DavidGardiner.Gardiner_LoadedProjects
+namespace Gardiner.LoadedProjects
 {
     [Serializable]
     public class Profile : INotifyPropertyChanged
