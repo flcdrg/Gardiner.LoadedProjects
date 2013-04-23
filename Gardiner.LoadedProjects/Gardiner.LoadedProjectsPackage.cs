@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -39,9 +38,16 @@ namespace DavidGardiner.Gardiner_LoadedProjects
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(GuidList.guidGardiner_LoadedProjectsPkgString)]
     // ReSharper disable InconsistentNaming
-    public sealed class Gardiner_LoadedProjectsPackage : Package, IVsSolutionLoadEvents, IVsSolutionEvents
+    public sealed class Gardiner_LoadedProjectsPackage : Package, IVsSolutionEvents
         // ReSharper restore InconsistentNaming
     {
+        private const int FILE_ATTRIBUTE_DIRECTORY = 0x10;
+        private const int FILE_ATTRIBUTE_NORMAL = 0x80;
+        private const string FileSuffix = ".LoadedProjects.User";
+
+        [DllImport( "shlwapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern int PathRelativePathTo( StringBuilder pszPath, string pszFrom, int dwAttrFrom, string pszTo, int dwAttrTo );
+
         private const string SettingsKey = "Gardiner.LoadedProjects";
         private const string OutputWindowId = "C376C4E8-8E26-4D6F-886C-551A088EF57D";
         private static IVsOutputWindowPane _customPane;
@@ -50,6 +56,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
         private IList<HierarchyPathPair> _unloaded;
         private DTE _dte;
         private uint _solutionCookie;
+        private bool _settingsModified;
 
         /// <summary>
         ///     Default constructor of the package.
@@ -88,8 +95,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             if (null != mcs)
             {
                 // Create the command for the menu item.
-                var menuCommandID = new CommandID(GuidList.guidGardiner_LoadedProjectsCmdSet,
-                                                  (int) PkgCmdIDList.cmdidLoadedProjects);
+                var menuCommandID = new CommandID(GuidList.guidGardiner_LoadedProjectsCmdSet, (int) PkgCmdIDList.cmdidLoadedProjects);
                 var menuItem = new MenuCommand(MenuItemCallback, menuCommandID);
                 mcs.AddCommand(menuItem);
             }
@@ -97,15 +103,14 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             PrepareOutput();
         }
 
-        private void SolutionAfterClosing()
+        private void SaveSettings( bool closing )
         {
-            string solutionPath = _dte.Solution.FullName + ".LoadedProjects";
+            string solutionPath = _dte.Solution.FullName + FileSuffix;
 
             try
             {
                 if (null != _settings)
                 {
-                    // TODO dirty check before saving
                     using (var fs = new FileStream(solutionPath, FileMode.Create, FileAccess.ReadWrite))
                     {
                         var serializer = new XmlSerializer(typeof(Settings));
@@ -120,7 +125,10 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             }
             finally
             {
-                _settings = null;
+                _settingsModified = false;
+
+                if ( closing )
+                    _settings = null;
             }
 
         }
@@ -129,7 +137,7 @@ namespace DavidGardiner.Gardiner_LoadedProjects
         {
             if (_settings == null)
             {
-                string solutionPath = _dte.Solution.FullName + ".LoadedProjects";
+                string solutionPath = _dte.Solution.FullName + FileSuffix;
 
                 if (File.Exists(solutionPath))
                 {
@@ -155,6 +163,8 @@ namespace DavidGardiner.Gardiner_LoadedProjects
                     _settings = new Settings();
             }
 
+            _settings.PropertyChanged += SettingsOnPropertyChanged;
+
         }
 
         /// <summary>
@@ -179,11 +189,17 @@ namespace DavidGardiner.Gardiner_LoadedProjects
                     return;
                 }
 
+                _settingsModified = false;
                 frm.Unloaded = _unloaded.Select(x => GetRelativePath(solutionFolder, x.HierarchyPath)).ToList();
                 frm.Settings = _settings;
 
-                if (frm.ShowDialog() != DialogResult.Cancel)
+                var dialogResult = frm.ShowDialog();
+
+                if (dialogResult != DialogResult.Cancel)
                 {
+                    if ( _settingsModified )
+                        SaveSettings( false );
+
                     if (frm.SelectedProfile != null)
                     {
                         var profile = frm.SelectedProfile;
@@ -233,6 +249,11 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             }
         }
 
+        private void SettingsOnPropertyChanged( object sender, PropertyChangedEventArgs propertyChangedEventArgs )
+        {
+             _settingsModified = true;
+        }
+
 
         private static string GetFullPathToItem(IVsHierarchy hier)
         {
@@ -263,12 +284,10 @@ namespace DavidGardiner.Gardiner_LoadedProjects
 
             if (hr == 0)
                 return name;
-            else
-            {
-                Debug.WriteLine("Failed to get full path for {0}", pVar);
+            
+            Debug.WriteLine("Failed to get full path for {0}", pVar);
 
-                return string.Empty;
-            }
+            return string.Empty;
         }
 
 
@@ -328,7 +347,8 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             if (_customPane == null)
                 PrepareOutput();
 
-            ErrorHandler.ThrowOnFailure(_customPane.OutputString(text + "\n"));
+            if ( _customPane != null )
+                ErrorHandler.ThrowOnFailure(_customPane.OutputString(text + "\n"));
         }
 
         public static Project ToDteProject(IVsHierarchy hierarchy)
@@ -341,37 +361,6 @@ namespace DavidGardiner.Gardiner_LoadedProjects
                 return (Project) prjObject;
             }
             throw new ArgumentException("Hierarchy is not a project.");
-        }
-
-        public int OnBeforeOpenSolution(string pszSolutionFilename)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnBeforeBackgroundSolutionLoadBegins()
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnQueryBackgroundLoadProjectBatch(out bool pfShouldDelayLoadToNextIdle)
-        {
-            pfShouldDelayLoadToNextIdle = false;
-            return VSConstants.S_OK;
-        }
-
-        public int OnBeforeLoadProjectBatch(bool fIsBackgroundIdleBatch)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnAfterLoadProjectBatch(bool fIsBackgroundIdleBatch)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnAfterBackgroundSolutionLoadComplete()
-        {
-            return VSConstants.S_OK;
         }
 
         public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
@@ -417,7 +406,10 @@ namespace DavidGardiner.Gardiner_LoadedProjects
         public int OnBeforeCloseSolution(object pUnkReserved)
         {
             // Need to do this before solution closes, so we know the path of the solution
-            SolutionAfterClosing();
+            _settings.PropertyChanged -= SettingsOnPropertyChanged;
+
+            if (_settingsModified)
+                SaveSettings(true);
             return VSConstants.S_OK;
         }
 
@@ -460,11 +452,5 @@ namespace DavidGardiner.Gardiner_LoadedProjects
 
             throw new FileNotFoundException();
         }
-
-        private const int FILE_ATTRIBUTE_DIRECTORY = 0x10;
-        private const int FILE_ATTRIBUTE_NORMAL = 0x80;
-
-        [DllImport("shlwapi.dll", SetLastError = true)]
-        private static extern int PathRelativePathTo(StringBuilder pszPath, string pszFrom, int dwAttrFrom, string pszTo, int dwAttrTo);
     }
 }

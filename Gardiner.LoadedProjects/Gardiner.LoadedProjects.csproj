@@ -139,6 +139,7 @@
     <Compile Include="HierarchyPathPair.cs" />
     <Compile Include="Profile.cs" />
     <Compile Include="ProjectEnumerator.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

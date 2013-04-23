@@ -64,7 +64,8 @@
 
       <Button guid="guidGardiner_LoadedProjectsCmdSet" id="cmdidLoadedProjects" priority="0x0100" type="Button">
         <Parent guid="guidGardiner_LoadedProjectsCmdSet" id="MyMenuGroup" />
-        <Icon guid="guidImages" id="bmpPic1" />
+        <Icon guid="guidImages" id="bmpPic1"  />
+         
         <Strings>
           <ButtonText>Loaded Projects</ButtonText>
         </Strings>

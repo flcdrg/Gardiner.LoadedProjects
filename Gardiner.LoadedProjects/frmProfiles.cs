@@ -38,7 +38,11 @@ namespace DavidGardiner.Gardiner_LoadedProjects
             // save current loaded projects
 
             var profile = new Profile();
-            profile.UnloadedProjects.AddRange( Unloaded );
+            profile.UnloadedProjects.Clear();
+            foreach ( var proj in Unloaded )
+            {
+                profile.UnloadedProjects.Add( proj );
+            }
 
             bool saveProfile = false;
             using ( var frm = new frmProfileName {ProfileName = DateTime.Now.ToString()} )
@@ -47,18 +51,15 @@ namespace DavidGardiner.Gardiner_LoadedProjects
                     saveProfile = true;
 
                 profile.Name = frm.ProfileName;
-
             }
 
             if (saveProfile)
                 {
-
                     Settings.Profiles.Add( profile );
 
                     DialogResult = DialogResult.OK;
                     Close();
                 }
-
         }
 
         private void btnDelete_Click( object sender, EventArgs e )
