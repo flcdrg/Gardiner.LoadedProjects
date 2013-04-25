@@ -198,8 +198,7 @@ namespace Gardiner.LoadedProjects
                     {
                         var profile = frm.SelectedProfile;
 
-
-                        using (var progress = new frmProgress(this, solutionFolder, _loaded, _unloaded, profile.UnloadedProjects.ToList()))
+                        using (var progress = new frmProgress(this, _loaded, _unloaded, profile.UnloadedProjects.ToList()))
                         {
                             progress.ShowDialog();
                         }
@@ -277,13 +276,13 @@ namespace Gardiner.LoadedProjects
                                   .Select(x => new {hierarchy = (IVsUIHierarchy) x, path = GetFullPathToItem(x)})
                                   .Where(x => !string.IsNullOrEmpty(x.path))
                                   .Select(
-                                      h => new HierarchyPathPair(h.hierarchy, h.path)));
+                                      h => new HierarchyPathPair(h.hierarchy, GetRelativePath(solutionFolder, h.path))));
 
-                unloadedProjects.ForEach(hpp => {
-                                                    if (hpp != null)
-                                                        _unloaded.Add(hpp);
+                unloadedProjects.ForEach(hpp =>
+                {
+                    if (hpp != null)
+                        _unloaded.Add(hpp);
                 });
-
 
             }
             catch (Exception e)

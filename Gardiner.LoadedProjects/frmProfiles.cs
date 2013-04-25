@@ -78,7 +78,7 @@ namespace Gardiner.LoadedProjects
         {
             SelectedProfile = (Profile) lstProfiles.SelectedItem;
             DialogResult = DialogResult.OK;
-            this.Close();
+            Close();
         }
     }
 }

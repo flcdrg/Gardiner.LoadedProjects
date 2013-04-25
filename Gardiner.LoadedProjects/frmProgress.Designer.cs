@@ -38,26 +38,25 @@
             // 
             this.progressBar1.Location = new System.Drawing.Point(12, 93);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(383, 23);
+            this.progressBar1.Size = new System.Drawing.Size(558, 23);
             this.progressBar1.TabIndex = 0;
             this.progressBar1.UseWaitCursor = true;
             // 
             // lblCurrent
             // 
-            this.lblCurrent.AutoSize = true;
-            this.lblCurrent.Location = new System.Drawing.Point(13, 51);
+            this.lblCurrent.Location = new System.Drawing.Point(12, 51);
             this.lblCurrent.Name = "lblCurrent";
-            this.lblCurrent.Size = new System.Drawing.Size(0, 13);
+            this.lblCurrent.Size = new System.Drawing.Size(558, 39);
             this.lblCurrent.TabIndex = 1;
             this.lblCurrent.UseWaitCursor = true;
             // 
             // lblAction
             // 
-            this.lblAction.AutoSize = true;
             this.lblAction.Location = new System.Drawing.Point(12, 13);
             this.lblAction.Name = "lblAction";
-            this.lblAction.Size = new System.Drawing.Size(0, 13);
+            this.lblAction.Size = new System.Drawing.Size(558, 26);
             this.lblAction.TabIndex = 2;
+            this.lblAction.UseWaitCursor = true;
             // 
             // backgroundWorker1
             // 
@@ -70,7 +69,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(416, 131);
+            this.ClientSize = new System.Drawing.Size(582, 131);
             this.ControlBox = false;
             this.Controls.Add(this.lblAction);
             this.Controls.Add(this.lblCurrent);
@@ -85,8 +84,8 @@
             this.TopMost = true;
             this.UseWaitCursor = true;
             this.Load += new System.EventHandler(this.frmProgress_Load);
+            this.Shown += new System.EventHandler(this.frmProgress_Shown);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
