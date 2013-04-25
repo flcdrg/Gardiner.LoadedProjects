@@ -15,6 +15,9 @@ namespace Gardiner.LoadedProjects
         private readonly string _hierarchyPath;
         private readonly IVsUIHierarchy _hierarchy;
 
+        /// <summary>
+        /// File system path of item, relative to solution root
+        /// </summary>
         public string HierarchyPath
         {
             get { return _hierarchyPath; }

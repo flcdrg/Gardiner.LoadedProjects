@@ -45,7 +45,6 @@ namespace Gardiner.LoadedProjects
         private const string FileSuffix = ".LoadedProjects.User";
 
         private const string SettingsKey = "Gardiner.LoadedProjects";
-        private const string OutputWindowId = "C376C4E8-8E26-4D6F-886C-551A088EF57D";
         private static IVsOutputWindowPane _customPane;
         private IList<HierarchyPathPair> _loaded;
         private Settings _settings;
@@ -172,21 +171,20 @@ namespace Gardiner.LoadedProjects
         {
             SolutionOpened();
 
-            GetProjects();
+            string solutionFolder = Path.GetDirectoryName(_dte.Solution.FullName);
+
+            if (string.IsNullOrEmpty(solutionFolder))
+            {
+                OutputCommandString("Could not load path for solution");
+                return;
+            }
+            GetProjects(solutionFolder);
 
             using (var frm = new frmProfiles())
             {
-
-                string solutionFolder = Path.GetDirectoryName(_dte.Solution.FullName);
-
-                if (string.IsNullOrEmpty(solutionFolder))
-                {
-                    OutputCommandString("Could not load path for solution");
-                    return;
-                }
-
                 _settingsModified = false;
-                frm.Unloaded = _unloaded.Select(x => GetRelativePath(solutionFolder, x.HierarchyPath)).ToList();
+
+                frm.Unloaded = _unloaded.Select(x => x.HierarchyPath).ToList();
                 frm.Settings = _settings;
 
                 var dialogResult = frm.ShowDialog();
@@ -200,45 +198,10 @@ namespace Gardiner.LoadedProjects
                     {
                         var profile = frm.SelectedProfile;
 
-                        IVsUIHierarchyWindow slnExpHierWin = VsShellUtilities.GetUIHierarchyWindow(this, VSConstants.StandardToolWindows.SolutionExplorer);
 
-                        var solutionService = (IVsSolution) GetService(typeof(SVsSolution));
-
-                        foreach (var project in profile.UnloadedProjects)
+                        using (var progress = new frmProgress(this, solutionFolder, _loaded, _unloaded, profile.UnloadedProjects.ToList()))
                         {
-                            // convert to absolute path
-                            string absoluteProjectPath = Path.GetFullPath(Path.Combine(solutionFolder, project));
-                            var item = _loaded.FirstOrDefault(x => x.HierarchyPath.Equals(absoluteProjectPath, StringComparison.CurrentCultureIgnoreCase));
-
-                            if (item != null)
-                            {
-                                if (slnExpHierWin == null)
-                                {
-                                    Debug.Fail("Failed to get the solution explorer hierarchy window!");
-                                }
-                                else
-                                {
-                                    ErrorHandler.ThrowOnFailure(
-                                        solutionService.CloseSolutionElement(
-                                            (uint) __VSSLNCLOSEOPTIONS.SLNCLOSEOPT_UnloadProject, item.Hierarchy, 0));
-
-                                    OutputCommandString(string.Format(CultureInfo.CurrentCulture, "Unloaded {0}", item.HierarchyPath));
-                                }
-                            }
-                        }
-
-                        var dte = (DTE) GetService(typeof(DTE));
-
-                        foreach (var pair in _unloaded)
-                        {
-                            if (profile.UnloadedProjects.All(x => x != pair.HierarchyPath))
-                            {
-                                ErrorHandler.ThrowOnFailure(slnExpHierWin.ExpandItem(pair.Hierarchy, (uint) VSConstants.VSITEMID.Root, EXPANDFLAGS.EXPF_SelectItem));
-
-                                dte.ExecuteCommand("Project.ReloadProject");
-
-                                OutputCommandString(string.Format(CultureInfo.CurrentCulture, "Reloaded {0}", pair.HierarchyPath));
-                            }
+                            progress.ShowDialog();
                         }
                     }
                 }
@@ -287,7 +250,7 @@ namespace Gardiner.LoadedProjects
         }
 
 
-        private void GetProjects()
+        private void GetProjects(string solutionFolder)
         {
             _loaded = new List<HierarchyPathPair>();
             _unloaded = new List<HierarchyPathPair>();
@@ -296,15 +259,15 @@ namespace Gardiner.LoadedProjects
             var loadedProjects =
                 enumerator.LoadedProjects
                           .Select(x => new {hierarchy = (IVsUIHierarchy) x, path = GetFullPathToItem(x)})
-                          .Where(x => x.path != null)
+                          .Where(x => !string.IsNullOrEmpty(x.path))
                           .Select(
-                              h => new HierarchyPathPair(h.hierarchy, h.path));
+                              h => new HierarchyPathPair(h.hierarchy, GetRelativePath(solutionFolder, h.path)));
 
             try
             {
                 loadedProjects.ForEach(hpp =>
                 {
-                    if (_loaded != null)
+                    if (hpp != null)
                         _loaded.Add(hpp);
                 });
 
@@ -312,12 +275,16 @@ namespace Gardiner.LoadedProjects
                     new List<HierarchyPathPair>(
                         enumerator.UnloadedProjects
                                   .Select(x => new {hierarchy = (IVsUIHierarchy) x, path = GetFullPathToItem(x)})
-                                  .Where(x => x.path != null)
+                                  .Where(x => !string.IsNullOrEmpty(x.path))
                                   .Select(
                                       h => new HierarchyPathPair(h.hierarchy, h.path)));
 
+                unloadedProjects.ForEach(hpp => {
+                                                    if (hpp != null)
+                                                        _unloaded.Add(hpp);
+                });
 
-                unloadedProjects.ForEach(hpp => _unloaded.Add(hpp));
+
             }
             catch (Exception e)
             {
@@ -329,7 +296,7 @@ namespace Gardiner.LoadedProjects
         {
             var outWindow = (IVsOutputWindow) GetGlobalService(typeof(SVsOutputWindow));
 
-            var customGuid = new Guid(OutputWindowId);
+            var customGuid = new Guid(GuidList.OutputWindowId);
             const string customTitle = "Loaded Projects Output";
             ErrorHandler.ThrowOnFailure(outWindow.CreatePane(ref customGuid, customTitle, 1, 1));
 
