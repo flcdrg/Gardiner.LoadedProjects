@@ -34,24 +34,6 @@ namespace Gardiner.LoadedProjects
             _unloadedProjects = unloadedProjects;
         }
 
-        private void frmProgress_Load(object sender, EventArgs e)
-        {
-            //backgroundWorker1.RunWorkerAsync();
-        }
-
-        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
-        {
-        }
-
-        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            // Change the value of the ProgressBar to the BackgroundWorker progress.
-            progressBar1.Value = e.ProgressPercentage;
-            
-            // Set the text.
-            lblCurrent.Text = (string) e.UserState;
-        }
-
         private void PrepareOutput()
         {
             var outWindow = (IVsOutputWindow) _serviceProvider.GetService(typeof(SVsOutputWindow));
@@ -69,11 +51,6 @@ namespace Gardiner.LoadedProjects
         private void OutputCommandString(string text)
         {
             ErrorHandler.ThrowOnFailure(_customPane.OutputString(text + "\n"));
-        }
-
-        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            Close();
         }
 
         private void frmProgress_Shown(object sender, EventArgs e)
@@ -111,24 +88,21 @@ namespace Gardiner.LoadedProjects
             {
                 int increment = 100 / count;
 
-                Invoke((MethodInvoker)delegate { lblAction.Text = "Unloading"; });
-
                 for (int i = 0; i < count; i++)
                 {
                     var item = projectsToUnload[i];
 
                     progressBar1.Increment(increment);
                     lblCurrent.Text = item.HierarchyPath;
+                    lblAction.Text = string.Format( "Unloading {0} of {1}", i, count );
+
+                    Application.DoEvents();
 
                     ErrorHandler.ThrowOnFailure(solutionService.CloseSolutionElement((uint)__VSSLNCLOSEOPTIONS.SLNCLOSEOPT_UnloadProject, item.Hierarchy, 0));
 
                     OutputCommandString(string.Format(CultureInfo.CurrentCulture, "Unloaded {0}", item.HierarchyPath));
-
-                    Application.DoEvents();
                 }
             }
-
-            Invoke((MethodInvoker)delegate { lblAction.Text = "Reloading"; });
 
             count = projectsToReload.Count;
 
@@ -141,10 +115,10 @@ namespace Gardiner.LoadedProjects
                 for (int i = 0; i < count; i++)
                 {
                     var item = projectsToReload[i];
-                    //backgroundWorker1.ReportProgress(increment * i, item.HierarchyPath);
 
                     progressBar1.Increment(increment);
                     lblCurrent.Text = item.HierarchyPath;
+                    lblAction.Text = string.Format( "Reloading {0} of {1}", i, count );
 
                     ErrorHandler.ThrowOnFailure(slnExpHierWin.ExpandItem(item.Hierarchy, (uint)VSConstants.VSITEMID.Root, EXPANDFLAGS.EXPF_SelectItem));
 

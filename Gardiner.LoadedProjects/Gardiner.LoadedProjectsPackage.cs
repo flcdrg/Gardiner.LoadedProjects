@@ -42,7 +42,7 @@ namespace Gardiner.LoadedProjects
     {
         private const int FILE_ATTRIBUTE_DIRECTORY = 0x10;
         private const int FILE_ATTRIBUTE_NORMAL = 0x80;
-        private const string FileSuffix = ".LoadedProjects.User";
+        private const string FileSuffix = ".LoadedProjects.user";
 
         private const string SettingsKey = "Gardiner.LoadedProjects";
         private static IVsOutputWindowPane _customPane;
@@ -180,8 +180,12 @@ namespace Gardiner.LoadedProjects
             }
             GetProjects(solutionFolder);
 
+            // TODO Convert dialog to WPF
+            // http://msdn.microsoft.com/en-us/library/ee943166.aspx
+
             using (var frm = new frmProfiles())
             {
+                
                 _settingsModified = false;
 
                 frm.Unloaded = _unloaded.Select(x => x.HierarchyPath).ToList();

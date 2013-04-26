@@ -31,50 +31,46 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.lblCurrent = new System.Windows.Forms.Label();
             this.lblAction = new System.Windows.Forms.Label();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(12, 93);
+            this.progressBar1.Location = new System.Drawing.Point(16, 114);
+            this.progressBar1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(558, 23);
+            this.progressBar1.Size = new System.Drawing.Size(744, 28);
             this.progressBar1.TabIndex = 0;
             this.progressBar1.UseWaitCursor = true;
             // 
             // lblCurrent
             // 
-            this.lblCurrent.Location = new System.Drawing.Point(12, 51);
+            this.lblCurrent.Location = new System.Drawing.Point(16, 63);
+            this.lblCurrent.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblCurrent.Name = "lblCurrent";
-            this.lblCurrent.Size = new System.Drawing.Size(558, 39);
+            this.lblCurrent.Size = new System.Drawing.Size(744, 48);
             this.lblCurrent.TabIndex = 1;
             this.lblCurrent.UseWaitCursor = true;
             // 
             // lblAction
             // 
-            this.lblAction.Location = new System.Drawing.Point(12, 13);
+            this.lblAction.Location = new System.Drawing.Point(16, 16);
+            this.lblAction.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblAction.Name = "lblAction";
-            this.lblAction.Size = new System.Drawing.Size(558, 26);
+            this.lblAction.Size = new System.Drawing.Size(744, 32);
             this.lblAction.TabIndex = 2;
             this.lblAction.UseWaitCursor = true;
             // 
-            // backgroundWorker1
-            // 
-            this.backgroundWorker1.WorkerReportsProgress = true;
-            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
-            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-            // 
             // frmProgress
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(582, 131);
+            this.ClientSize = new System.Drawing.Size(776, 161);
             this.ControlBox = false;
             this.Controls.Add(this.lblAction);
             this.Controls.Add(this.lblCurrent);
             this.Controls.Add(this.progressBar1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmProgress";
@@ -83,7 +79,6 @@
             this.Text = "Loaded Projects";
             this.TopMost = true;
             this.UseWaitCursor = true;
-            this.Load += new System.EventHandler(this.frmProgress_Load);
             this.Shown += new System.EventHandler(this.frmProgress_Shown);
             this.ResumeLayout(false);
 
@@ -94,6 +89,5 @@
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label lblCurrent;
         private System.Windows.Forms.Label lblAction;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }

@@ -1,13 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="4bf1fa9e-38c5-46ca-9718-a133986099dc" Version="1.4" Language="en-US" Publisher="David Gardiner" />
+        <Identity Id="4bf1fa9e-38c5-46ca-9718-a133986099dc" Version="1.5" Language="en-US" Publisher="David Gardiner" />
         <DisplayName>Loaded Projects</DisplayName>
         <Description xml:space="preserve">Create profiles of unloaded projects. Switch between different profiles to unload different sets of projects</Description>
         <MoreInfo>http://david.gardiner.net.au</MoreInfo>
         <License>license.txt</License>
         <ReleaseNotes>Release Notes.html</ReleaseNotes>
         <Icon>noun_project_352-32x32.png</Icon>
+        <PreviewImage>noun_project_352-200x200.png</PreviewImage>
+        <Tags>Project, Solution, Unload, Large</Tags>
     </Metadata>
     <Installation InstalledByMsi="false">
         <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="11.0" />
