@@ -62,7 +62,6 @@ namespace Gardiner.LoadedProjects
         /// </summary>
         public Gardiner_LoadedProjectsPackage()
         {
-            Debug.WriteLine("Entering constructor for: {0}", ToString());
             AddOptionKey(SettingsKey);
         }
 
@@ -76,7 +75,6 @@ namespace Gardiner.LoadedProjects
         /// </summary>
         protected override void Initialize()
         {
-            Debug.WriteLine("Entering Initialize() of: {0}", ToString());
             base.Initialize();
 
             _dte = GetService(typeof(SDTE)) as DTE;
@@ -130,36 +128,34 @@ namespace Gardiner.LoadedProjects
 
         private void SolutionOpened()
         {
-            if (_settings == null)
+            if (_settings != null)
+                _settings.PropertyChanged -= SettingsOnPropertyChanged;
+
+            string solutionPath = _dte.Solution.FullName + FileSuffix;
+
+            if (File.Exists(solutionPath))
             {
-                string solutionPath = _dte.Solution.FullName + FileSuffix;
-
-                if (File.Exists(solutionPath))
+                try
                 {
-                    try
+                    using (var fs = new FileStream(solutionPath, FileMode.Open))
                     {
-                        using (var fs = new FileStream(solutionPath, FileMode.Open))
-                        {
-                            var serializer = new XmlSerializer(typeof(Settings));
-                            _settings = (Settings)serializer.Deserialize(fs);
-                        }
-
-                        OutputCommandString("Loaded options");
-                    }
-                    catch (Exception ex)
-                    {
-                        OutputCommandString(string.Format("Exception loading options. {0}", ex));
-                        _settings = new Settings();
+                        var serializer = new XmlSerializer(typeof(Settings));
+                        _settings = (Settings) serializer.Deserialize(fs);
                     }
 
-
+                    OutputCommandString("Loaded options");
                 }
-                else
+                catch (Exception ex)
+                {
+                    OutputCommandString(string.Format("Exception loading options. {0}", ex));
                     _settings = new Settings();
+                }
             }
+            else
+                _settings = new Settings();
 
             _settings.PropertyChanged += SettingsOnPropertyChanged;
-
+            
         }
 
         /// <summary>
