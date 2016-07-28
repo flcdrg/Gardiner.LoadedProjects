@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gardiner.LoadedProjects", "Gardiner.LoadedProjects\Gardiner.LoadedProjects.csproj", "{DC3D1750-34FA-4B94-A4EF-1096FF9C0753}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gardiner.LoadedProjects_IntegrationTests", "Gardiner.LoadedProjects\Gardiner.LoadedProjects_IntegrationTests\Gardiner.LoadedProjects_IntegrationTests.csproj", "{230982BE-C85D-4BA8-9F36-6B9B15DEC382}"
-EndProject
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{93BFC865-9F1F-418F-AE48-67146686C64B}"
 	ProjectSection(SolutionItems) = preProject
 		IntegrationTests.testsettings = IntegrationTests.testsettings
@@ -12,6 +10,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Release Notes.html = Release Notes.html
 		UnitTests.testsettings = UnitTests.testsettings
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gardiner.LoadedProjects", "Gardiner.LoadedProjects\Gardiner.LoadedProjects.csproj", "{DC3D1750-34FA-4B94-A4EF-1096FF9C0753}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gardiner.LoadedProjects_IntegrationTests", "Gardiner.LoadedProjects\Gardiner.LoadedProjects_IntegrationTests\Gardiner.LoadedProjects_IntegrationTests.csproj", "{230982BE-C85D-4BA8-9F36-6B9B15DEC382}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gardiner.LoadedProjects_UnitTests", "Gardiner.LoadedProjects\Gardiner.LoadedProjects_UnitTests\Gardiner.LoadedProjects_UnitTests.csproj", "{7E19FE3B-5BF6-4EA6-AFB6-9148D23F4FEA}"
 EndProject

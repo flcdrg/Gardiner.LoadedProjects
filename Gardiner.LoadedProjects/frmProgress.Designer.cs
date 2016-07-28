@@ -35,42 +35,48 @@
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(16, 114);
-            this.progressBar1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.progressBar1.Location = new System.Drawing.Point(32, 221);
+            this.progressBar1.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(744, 28);
+            this.progressBar1.Size = new System.Drawing.Size(1488, 54);
             this.progressBar1.TabIndex = 0;
             this.progressBar1.UseWaitCursor = true;
             // 
             // lblCurrent
             // 
-            this.lblCurrent.Location = new System.Drawing.Point(16, 63);
-            this.lblCurrent.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblCurrent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblCurrent.Location = new System.Drawing.Point(32, 122);
+            this.lblCurrent.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblCurrent.Name = "lblCurrent";
-            this.lblCurrent.Size = new System.Drawing.Size(744, 48);
+            this.lblCurrent.Size = new System.Drawing.Size(1488, 93);
             this.lblCurrent.TabIndex = 1;
             this.lblCurrent.UseWaitCursor = true;
             // 
             // lblAction
             // 
-            this.lblAction.Location = new System.Drawing.Point(16, 16);
-            this.lblAction.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblAction.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblAction.Location = new System.Drawing.Point(32, 31);
+            this.lblAction.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblAction.Name = "lblAction";
-            this.lblAction.Size = new System.Drawing.Size(744, 32);
+            this.lblAction.Size = new System.Drawing.Size(1488, 62);
             this.lblAction.TabIndex = 2;
             this.lblAction.UseWaitCursor = true;
             // 
             // frmProgress
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(776, 161);
+            this.ClientSize = new System.Drawing.Size(1552, 312);
             this.ControlBox = false;
             this.Controls.Add(this.lblAction);
             this.Controls.Add(this.lblCurrent);
             this.Controls.Add(this.progressBar1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmProgress";
