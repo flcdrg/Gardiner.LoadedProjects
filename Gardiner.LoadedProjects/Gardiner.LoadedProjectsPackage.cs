@@ -313,18 +313,6 @@ namespace Gardiner.LoadedProjects
                 ErrorHandler.ThrowOnFailure(_customPane.OutputString(text + "\n"));
         }
 
-        public static Project ToDteProject(IVsHierarchy hierarchy)
-        {
-            if (hierarchy == null)
-                throw new ArgumentNullException("hierarchy");
-            object prjObject;
-            if (hierarchy.GetProperty(0xfffffffe, -2027, out prjObject) >= 0)
-            {
-                return (Project) prjObject;
-            }
-            throw new ArgumentException("Hierarchy is not a project.");
-        }
-
         public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
         {
             return VSConstants.S_OK;
