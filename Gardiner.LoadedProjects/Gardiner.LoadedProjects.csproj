@@ -206,7 +206,7 @@
       <Version>15.8.36</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Shell.Immutable.10.0">
-      <Version>10.0.30319</Version>
+      <Version>15.0.25415</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Shell.Immutable.11.0">
       <Version>11.0.50727</Version>
