@@ -215,7 +215,7 @@
       <Version>7.10.6071</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Shell.Interop.11.0">
-      <Version>11.0.61030</Version>
+      <Version>11.0.61031</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Shell.Interop.9.0">
       <Version>9.0.30729</Version>
