@@ -221,7 +221,7 @@
       <Version>9.0.30729</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VSSDK.BuildTools">
-      <Version>15.0.26124-RC3</Version>
+      <Version>16.7.1039</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup>
